@@ -1,0 +1,5 @@
+.bsp
+.idea
+target
+project
+src/main/resources/*.csv
