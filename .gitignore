@@ -3,3 +3,4 @@
 target
 project
 src/main/resources/*.csv
+env

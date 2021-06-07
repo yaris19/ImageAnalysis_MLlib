@@ -1,33 +1,34 @@
 import com.microsoft.ml.spark.lightgbm.LightGBMClassifier
 import org.apache.log4j._
+import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.evaluation.BinaryClassificationEvaluator
 import org.apache.spark.ml.feature.VectorAssembler
-import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.functions.col
-import org.apache.spark.ml.Pipeline
+import org.apache.spark.{SparkConf, SparkContext}
 
-object MLlibClassifier {
+object GeneExpressionMLlib {
+
   def main(args: Array[String]): Unit = {
     Logger.getLogger("org").setLevel(Level.ERROR)
     val conf = new SparkConf().setAppName("simple").setMaster("local[2]")
     val sc = new SparkContext(conf)
     val sqlContext = new SQLContext(sc)
 
-    // read dataset
+
+    // read independent dataset
     val df = sqlContext.read.format("com.databricks.spark.csv")
       .option("inferSchema", "true")
       .option("header", "true")
       .option("sep", ",")
-      .load("src/main/resources/creditcard.csv")
+      .load("src/main/resources/data_set.csv")
 
-    // get only columns v1 to v28 and amount as features
-    val columnName = Seq("V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "V10", "V11", "V12", "V13", "V14", "V15", "V16", "V17", "V18", "V19", "V20", "V21", "V22", "V23", "V24", "V25", "V26", "V27", "V28", "Amount")
-    val featureCols = df.select(columnName.map(name => col(name)): _*)
+    val label = "cancer"
+    val data = df.drop(col(label))
 
     // set input and output cols
     val assembler = new VectorAssembler()
-      .setInputCols(featureCols.columns)
+      .setInputCols(data.columns)
       .setOutputCol("features")
 
     // hyperparameters determined in https://www.kaggle.com/patelatharva/credit-card-transaction-fraud-detection
@@ -35,7 +36,7 @@ object MLlibClassifier {
       .setLearningRate(0.1)
       .setEarlyStoppingRound(100)
       .setFeaturesCol("features")
-      .setLabelCol("Class")
+      .setLabelCol(label)
       .setIsUnbalance(true)
       .setBaggingFraction(0.8)
       .setBaggingFreq(1)
@@ -62,18 +63,18 @@ object MLlibClassifier {
     val predictions = model.transform(test)
 
     // show first 10 predictions
-    predictions.select("Class", "prediction", "probability").show(10)
+    predictions.select("cancer", "prediction", "probability").show(10)
 
     // calculate test area under ROC
-    val binaryEvaluator = new BinaryClassificationEvaluator().setLabelCol("Class").setMetricName("areaUnderROC")
+    val binaryEvaluator = new BinaryClassificationEvaluator().setLabelCol(label).setMetricName("areaUnderROC")
     val testUnderROC = binaryEvaluator.evaluate(predictions)
     println("Test Area Under ROC: %.5f\n".format(testUnderROC))
 
-    // get the tp's, tn's, fp's, fn's
-    val tp = predictions.filter(col("Class").equalTo(1) && col("prediction").equalTo(1.0)).count()
-    val tn = predictions.filter(col("Class").equalTo(0) && col("prediction").equalTo(0.0)).count()
-    val fp = predictions.filter(col("Class").equalTo(0) && col("prediction").equalTo(1.0)).count()
-    val fn = predictions.filter(col("Class").equalTo(1) && col("prediction").equalTo(0.0)).count()
+    // get the tp"s, tn"s, fp"s, fn"s
+    val tp = predictions.filter(col(label).equalTo(1) && col("prediction").equalTo(1.0)).count()
+    val tn = predictions.filter(col(label).equalTo(0) && col("prediction").equalTo(0.0)).count()
+    val fp = predictions.filter(col(label).equalTo(0) && col("prediction").equalTo(1.0)).count()
+    val fn = predictions.filter(col(label).equalTo(1) && col("prediction").equalTo(0.0)).count()
     println("TP: %s".format(tp))
     println("TN: %s".format(tn))
     println("FP: %s".format(fp))
@@ -100,4 +101,5 @@ object MLlibClassifier {
       println("F1: %.5f".format(f1))
     }
   }
+
 }
