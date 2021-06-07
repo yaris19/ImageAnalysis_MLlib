@@ -10,7 +10,7 @@
 This project uses the Gene expression dataset dataset from Kaggle. 
 1. Download ```data_set_ALL_AML_independent.csv``` from https://www.kaggle.com/crawford/gene-expression to ```src/main/resources```
 2. Download ```data_set_ALL_AML_train.csv``` from https://www.kaggle.com/crawford/gene-expression to ```src/main/resources```
-Please save the dataset to ```src/main/resources```
+3. Download ```actual.csv``` from https://www.kaggle.com/crawford/gene-expression to ```src/main/resources```
 
 ### How to run
 1. Follow this [guide](https://www.cloudera.com/tutorials/setting-up-a-spark-development-environment-with-scala.html) to set up a spark development with scala in IntelliJ
