@@ -26,3 +26,6 @@ This project uses the Gene expression dataset dataset from Kaggle.
    python preprocess_data.py
    ``` 
 5. Run the scala script by pressing the ```Run``` button in IntelliJ
+
+### Jar file
+The jar, built with ```sbt package```, of this project can be found in ```jars```
