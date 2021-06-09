@@ -31,7 +31,7 @@ object GeneExpressionMLlib {
       .setInputCols(data.columns)
       .setOutputCol("features")
 
-    // hyperparameters determined in https://www.kaggle.com/patelatharva/credit-card-transaction-fraud-detection
+    // set up a classifier
     val lgb = new LightGBMClassifier()
       .setLearningRate(0.1)
       .setEarlyStoppingRound(100)
@@ -101,5 +101,4 @@ object GeneExpressionMLlib {
       println("F1: %.5f".format(f1))
     }
   }
-
 }
