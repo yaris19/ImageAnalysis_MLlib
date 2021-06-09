@@ -1,4 +1,4 @@
-name := "hello"
+name := "GeneExpressionMLlib"
 
 version := "1.0"
 
